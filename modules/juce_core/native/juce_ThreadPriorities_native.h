@@ -89,6 +89,19 @@ struct ThreadPriorities
         { Thread::Priority::low,        THREAD_PRIORITY_LOWEST },
         { Thread::Priority::background, THREAD_PRIORITY_IDLE },
        #endif
+
+       // OctoDAW patch: upstream JUCE 8.x omits a JUCE_WASM branch in this
+       // table, which makes the static_assert below trip when JUCE is built
+       // for emscripten. WASM pthreads ignore native priority values, so
+       // any five ints satisfy the lookup. Guarded by __EMSCRIPTEN__ so
+       // the submodule stays buildable everywhere else unchanged.
+       #if defined(__EMSCRIPTEN__)
+        { Thread::Priority::highest,    0 },
+        { Thread::Priority::high,       0 },
+        { Thread::Priority::normal,     0 },
+        { Thread::Priority::low,        0 },
+        { Thread::Priority::background, 0 },
+       #endif
     };
 
     static_assert (std::size (table) == 5,
